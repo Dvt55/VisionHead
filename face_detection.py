@@ -2,6 +2,18 @@ import cv2
 import mediapipe as mp
 import pyautogui
 import numpy as np
+import threading
+from test_voice_comand import ouvir_comando, aplicar_zoom
+
+
+comando_voz = ""
+
+def thread_voz():
+    global comando_voz
+    while True:
+        comando = ouvir_comando()
+        if comando:
+            comando_voz = comando
 
 
 def initialize_face_mesh():
@@ -46,10 +58,14 @@ def process_face_landmarks(face, w, h, screen_width, screen_height, frame):
     return nose_x, nose_y
 
 def main():
+    global comando_voz
     face_mesh = initialize_face_mesh()
     screen_width, screen_height = get_screen_size()
     cap = cv2.VideoCapture(0)
     
+    t_voz = threading.Thread(target=thread_voz, daemon=True)
+    t_voz.start() 
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -58,7 +74,11 @@ def main():
         frame = cv2.flip(frame, 1)
         h, w, _ = frame.shape
         results = detect_face_landmarks(face_mesh, frame)
-        
+
+        if comando_voz == "zoom":
+            aplicar_zoom()
+            comando_voz = ""
+
         if results.multi_face_landmarks:
             for face in results.multi_face_landmarks:
                 nose_x, nose_y = process_face_landmarks(face, w, h, screen_width, screen_height, frame)
