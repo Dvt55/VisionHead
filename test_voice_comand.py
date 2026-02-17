@@ -27,12 +27,19 @@ def aplicar_zoom():
     pyautogui.keyUp('ctrl')
     print("zoom aplicado")
 
+def retirar_zoom():
+    pyautogui.keyDown('ctrl')
+    pyautogui.press('-')
+    pyautogui.keyUp('ctrl')
+    print("zoom retirado")
 
 def main():
     while True:
         comando = ouvir_comando()
-        if "zoom" in comando:
+        if "aumenta" in comando:
             aplicar_zoom()
+        elif "diminui" in comando:
+            retirar_zoom()
         elif "sair" in comando:
             print("Encerrando...")
             break 
